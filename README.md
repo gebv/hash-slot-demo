@@ -64,4 +64,4 @@ $ cat twitterusernames.csv | go run main.go -num 100
 refs
 * https://medium.com/miro-engineering/choosing-a-hash-function-to-solve-a-data-sharding-problem-c656259e2b54
 * https://severalnines.com/database-blog/hash-slot-vs-consistent-hashing-redis
-* twitter usernames datasets https://www.usna.edu/Users/cs/nchamber/data/twitternames/ only usernames `cat usernames-train.txt | cut -d ';' -f2 | awk '{print tolower($0)}' > onlyusernames.csv` (all usernames)
+* twitter usernames datasets https://www.usna.edu/Users/cs/nchamber/data/twitternames/ only usernames `cat usernames-train.txt | cut -d ';' -f2 | awk '{print tolower($0)}' > twitterusernames.csv` (all usernames)
