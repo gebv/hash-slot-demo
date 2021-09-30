@@ -21,37 +21,18 @@ func main() {
 
 	bitSize := *fBitSize
 	fmt.Println("bit size:", bitSize)
-	bitMax := uint32(1<<bitSize) - 1
-	fmt.Println("max value by bit:", bitMax)
 	// denominator
-	D := uint32(bitMax >> (bitSize / 6))
+	D := denominator(bitSize)
 	fmt.Println("denominator:", D)
 
 	fmt.Println("hasher: murmur3")
-	hashFn := func(in []byte) uint32 {
-		var h32 hash.Hash32 = murmur3.New32()
-		h32.Write([]byte(in))
-		return h32.Sum32()
-	}
+	hashFn := hashFn_murmur3
 
 	numNodes := *fNumNodes
 	fmt.Println("num of nodes:", numNodes)
 
-	nodeSegments := uint32Slice{}
-
-	left := uint32(0)
-	// segment length
-	L := uint32(D / uint32(numNodes))
-	fmt.Println("node boundaries ( length =", L, "):")
-	for i := 0; i < numNodes; i++ {
-		right := L*uint32(i+1) + 1
-		fmt.Println("\t#%d:", i+1, left, right)
-
-		nodeSegments = append(nodeSegments, right)
-		left = right
-	}
-
-	sort.Sort(nodeSegments)
+	fmt.Println("node boundaries ( length =", uint32(D/uint32(numNodes)), "):")
+	nodeSegments := prepareSegments(D, numNodes)
 
 	if isInputFromPipe() {
 		scanner := bufio.NewScanner(os.Stdin)
@@ -78,6 +59,32 @@ func main() {
 		fmt.Println("assigned to a node:", nodeSegments.numSegment(valh%D))
 		os.Exit(0)
 	}
+}
+
+func denominator(bitSize int) uint32 {
+	bitMax := uint32(1<<bitSize) - 1
+	// denominator
+	return uint32(bitMax >> (bitSize / 6))
+}
+
+func prepareSegments(denominator uint32, numNodes int) uint32Slice {
+	nodeSegments := uint32Slice{}
+
+	// segment length
+	L := uint32(denominator / uint32(numNodes))
+	for i := 0; i < numNodes; i++ {
+		right := L*uint32(i+1) + 1
+
+		nodeSegments = append(nodeSegments, right)
+	}
+	sort.Sort(nodeSegments)
+	return nodeSegments
+}
+
+func hashFn_murmur3(in []byte) uint32 {
+	var h32 hash.Hash32 = murmur3.New32()
+	h32.Write([]byte(in))
+	return h32.Sum32()
 }
 
 type uint32Slice []uint32
